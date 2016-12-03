@@ -1,0 +1,82 @@
+{% extends '@WebProfiler/Profiler/layout.html.twig' %}
+
+{% block toolbar %}
+    {% set icon %}
+        <span class="icon"><svg viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M896 768q237 0 443-43t325-127v170q0 69-103 128t-280 93.5-385 34.5-385-34.5-280-93.5-103-128v-170q119 84 325 127t443 43zm0 768q237 0 443-43t325-127v170q0 69-103 128t-280 93.5-385 34.5-385-34.5-280-93.5-103-128v-170q119 84 325 127t443 43zm0-384q237 0 443-43t325-127v170q0 69-103 128t-280 93.5-385 34.5-385-34.5-280-93.5-103-128v-170q119 84 325 127t443 43zm0-1152q208 0 385 34.5t280 93.5 103 128v128q0 69-103 128t-280 93.5-385 34.5-385-34.5-280-93.5-103-128v-128q0-69 103-128t280-93.5 385-34.5z" fill="#AAAAAA"/></svg></span>
+        <span class="sf-toolbar-value">{{ collector.queryCount }}</span>
+        <span class="sf-toolbar-label">&bull;</span>
+        <span class="sf-toolbar-value">{{ '%.0f'|format(collector.executionTime * 1000) }}</span>
+        <span class="sf-toolbar-label">ms</span>
+    {% endset %}
+
+    {% set text %}
+        {% for name,conn in collector.connections %}
+            <div class="sf-toolbar-info-group">
+                <div class="sf-toolbar-info-piece">
+                    <b>Connection</b>
+                    <span>{{ name }}</span>
+                </div>
+                <div class="sf-toolbar-info-piece">
+                    <b>Quer{{ conn.totalQueries > 1 ? "ies" : "y" }}</b>
+                    <span class="sf-toolbar-status">{{ conn.totalQueries }}</span>
+                </div>
+                <div class="sf-toolbar-info-piece">
+                    <b>Execution time</b>
+                    <span>{{ '%.0f'|format(conn.totalMS * 1000) }} ms</span>
+                </div>
+            </div>
+        {% endfor %}
+    {% endset %}
+
+    {{ include('@WebProfiler/Profiler/toolbar_item.html.twig', { 'link': true }) }}
+{% endblock %}
+
+{% block head %}
+    {# Optional. Here you can link to or define your own CSS and JS contents. #}
+    {# Use {{ parent() }} to extend the default styles instead of overriding them. #}
+    {{ parent() }}
+{% endblock %}
+
+{% block menu %}
+    {# This left-hand menu appears when using the full-screen profiler. #}
+    <span class="label">
+        <span class="icon"><svg viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M896 768q237 0 443-43t325-127v170q0 69-103 128t-280 93.5-385 34.5-385-34.5-280-93.5-103-128v-170q119 84 325 127t443 43zm0 768q237 0 443-43t325-127v170q0 69-103 128t-280 93.5-385 34.5-385-34.5-280-93.5-103-128v-170q119 84 325 127t443 43zm0-384q237 0 443-43t325-127v170q0 69-103 128t-280 93.5-385 34.5-385-34.5-280-93.5-103-128v-170q119 84 325 127t443 43zm0-1152q208 0 385 34.5t280 93.5 103 128v128q0 69-103 128t-280 93.5-385 34.5-385-34.5-280-93.5-103-128v-128q0-69 103-128t280-93.5 385-34.5z" fill="#AAAAAA"/></svg></span>
+        <strong>DBAL</strong>
+    </span>
+{% endblock %}
+
+{% block panel %}
+    {# Optional, for showing the most details. #}
+    <h2>Query Log</h2>
+    <table class="logs">
+        <thead>
+            <tr>
+                <th>Info</th>
+                <th>Query</th>
+            </tr>
+        </thead>
+        {% for conn_name,conn in collector.connections %}
+            {% for query in conn.queries %}
+            <tr>
+                <td class="font-normal text-small">
+                    <span class="colored text-bold nowrap">{{ conn_name }}</span>
+                    <span class="text-muted nowrap newline">{{ '%.0f'|format(query.executionMS * 1000) }} ms</span>
+                </td>
+                <td class="font-normal">
+                    {{ query.sql }}
+                    <span class="metadata">
+                        <strong>Params</strong>: {{ query.params|json_encode }}
+                    </span>
+                </td>
+            </tr>
+            {% endfor %}
+        {% endfor %}
+        {#
+        {% for type in collector.acceptableContentTypes %}
+            <tr>
+                <td>{{ type }}</td>
+            </tr>
+        {% endfor %}
+        #}
+    </table>
+{% endblock %}

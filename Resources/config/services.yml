@@ -1,0 +1,19 @@
+services:
+    db:
+        class: Incolab\DBALBundle\Service\DBALService
+        arguments: ["@kernel","@?logger","@?debug.stopwatch"]
+        tags:
+            - { name: monolog.logger, channel: db }
+    db.query_collector:
+        class: Incolab\DBALBundle\DataCollector\QueryCollector
+        public: false
+        arguments: ["@?db"]
+        tags:
+            - { name: data_collector, template: 'IncolabDBALBundle:Profiler:collector', id: 'db' }
+    
+    incolab_dbal.form.type.entity:
+        class: Incolab\DBALBundle\Form\Type\EntityType
+        arguments:
+            dbalService: "@db"
+        tags:
+            - { name: form.type }
