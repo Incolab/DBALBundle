@@ -11,9 +11,15 @@ services:
         tags:
             - { name: data_collector, template: 'IncolabDBALBundle:Profiler:collector', id: 'db' }
     
+    db.default_data:
+        class: Incolab\DBALBundle\Service\DefaultDataService
+        arguments:
+            $kernel: "@kernel"
+            $dbal: "@db"
+    
     incolab_dbal.form.type.entity:
         class: Incolab\DBALBundle\Form\Type\EntityType
         arguments:
-            dbalService: "@db"
+            $dbalService: "@db"
         tags:
             - { name: form.type }
